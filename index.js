@@ -8,7 +8,7 @@ const socketIo = require('socket.io');
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
-const port = 3000;
+const port = 3001;
 
 const pool = mariadb.createPool({
     host: 'localhost',
@@ -18,7 +18,7 @@ const pool = mariadb.createPool({
 });
 
 // 시리얼 포트 설정 (COM 포트를 확인하고 적절하게 변경하세요)
-const serialPort = new SerialPort('COM3', { baudRate: 115200 });
+const serialPort = new SerialPort('COM11', { baudRate: 115200 });
 const parser = serialPort.pipe(new Readline({ delimiter: '\r\n' }));
 
 parser.on('data', async (data) => {
@@ -29,7 +29,7 @@ parser.on('data', async (data) => {
         conn = await pool.getConnection();
         const uid = parseUID(data); // UID 추출
 
-        const rows = await conn.query("SELECT uid FROM your_table_name WHERE uid = ?", [uid]);
+        const rows = await conn.query("SELECT uid FROM pn532 WHERE uid = ?", [uid]);
 
         if (rows.length === 0) {
             io.emit('nfcData', { uid: uid, message: "등록되지 않은 카드입니다." });
