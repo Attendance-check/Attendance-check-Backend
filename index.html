@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NFC Reader</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var socket = io();
+
+            socket.on('nfcData', function(data) {
+                var message = data.message + ' (UID: ' + data.uid + ')';
+                document.getElementById('status').textContent = message;
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>NFC 카드 상태</h1>
+    <p id="status">카드를 스캔해 주세요.</p>
+</body>
+</html>
