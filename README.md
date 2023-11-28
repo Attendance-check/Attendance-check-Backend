@@ -1,4 +1,4 @@
-# Attendance-check-Guide
+# Suruetan
 
 ## Commit Rules
 

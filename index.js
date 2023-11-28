@@ -4,6 +4,7 @@ const mariadb = require('mariadb');
 const SerialPort = require('serialport').SerialPort;
 const Readline = require('@serialport/parser-readline');
 const socketIo = require('socket.io');
+const path = require('path'); // 주석 해제
 
 const app = express();
 const server = http.createServer(app);
@@ -17,8 +18,14 @@ const pool = mariadb.createPool({
     database: 'shs'
 });
 
-// 시리얼 포트 설정 (COM 포트를 확인하고 적절하게 변경하세요)
-const serialPort = new SerialPort('COM11', { baudRate: 115200 });
+let serialPort;
+try {
+    serialPort = new SerialPort('COM10', { baudRate: 115200 });
+} catch (err) {
+    console.error('SerialPort Initialization Error:', err);
+    process.exit(1);
+}
+
 const parser = serialPort.pipe(new Readline({ delimiter: '\r\n' }));
 
 parser.on('data', async (data) => {
@@ -27,7 +34,7 @@ parser.on('data', async (data) => {
 
     try {
         conn = await pool.getConnection();
-        const uid = parseUID(data); // UID 추출
+        const uid = parseUID(data);
 
         const rows = await conn.query("SELECT uid FROM pn532 WHERE uid = ?", [uid]);
 
@@ -44,15 +51,14 @@ parser.on('data', async (data) => {
 });
 
 function parseUID(data) {
-    // 아두이노에서 전송된 데이터에서 UID 부분만 추출
     const match = data.match(/UID Value:((?: 0x[0-9A-F]{2})+)/i);
     return match ? match[1].replace(/ 0x/g, '').toUpperCase() : null;
 }
 
 app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
+    res.sendFile(path.join(__dirname, 'index.html')); // path.join 사용
 });
 
 server.listen(port, () => {
-    console.log(`서버가 http://localhost:${port} 에서 실행 중입니다.`);
+    console.log(`localhost:${port}`);
 });
