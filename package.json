@@ -4,15 +4,15 @@
   "description": "| type | description |\r | --- | --- |\r | ADD ::  | 기능 추가 |\r | FIX :: | 수정 |\r | DOCS :: | 세부 기능 추가 |\r | STYLE :: | 코드 스타일 변경 |\r | REFACTOR :: | 코드 리팩토링 |\r | TEST :: | 코드 테스트 |\r | DELETE :: | 파일 또는 기능 삭제 |",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "node index.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@serialport/parser-readline": "^12.0.0",
+    "mysql": "^2.18.1",
     "nodemon": "^3.0.1",
-    "path": "^0.12.7",
-    "serialport-gsm": "^4.0.1"
+    "path": "^0.12.7"
   },
   "devDependencies": {
     "serialport": "^12.0.0"

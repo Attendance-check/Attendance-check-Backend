@@ -1,64 +1,53 @@
-const express = require('express');
-const http = require('http');
-const mariadb = require('mariadb');
-const SerialPort = require('serialport').SerialPort;
-const Readline = require('@serialport/parser-readline');
-const socketIo = require('socket.io');
-const path = require('path'); // 주석 해제
+const { SerialPort } = require('serialport');
+const { ReadlineParser } = require('@serialport/parser-readline');
+const mysql = require('mysql');
 
-const app = express();
-const server = http.createServer(app);
-const io = socketIo(server);
-const port = 3001;
+// 시리얼 포트 설정
+const portSettings = {
+    path: 'COM10',      // 시리얼 포트 경로
+    baudRate: 115200    // 보드 레이트 (통신 속도)
+};
+const port = new SerialPort(portSettings);
+const parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }));
 
-const pool = mariadb.createPool({
-    host: 'localhost',
-    user: 'root',
-    password: '070927',
-    database: 'shs'
+// MySQL 데이터베이스 연결 정보 설정
+const db = mysql.createConnection({
+    host: "localhost",       // 데이터베이스 호스트 주소
+    user: "root",            // 데이터베이스 사용자 이름
+    password: "070927",      // 데이터베이스 비밀번호
+    database: "shs"          // 사용할 데이터베이스 이름
 });
 
-let serialPort;
-try {
-    serialPort = new SerialPort('COM10', { baudRate: 115200 });
-} catch (err) {
-    console.error('SerialPort Initialization Error:', err);
-    process.exit(1);
-}
-
-const parser = serialPort.pipe(new Readline({ delimiter: '\r\n' }));
-
-parser.on('data', async (data) => {
-    console.log(`Received data: ${data}`);
-    let conn;
-
-    try {
-        conn = await pool.getConnection();
-        const uid = parseUID(data);
-
-        const rows = await conn.query("SELECT uid FROM pn532 WHERE uid = ?", [uid]);
-
-        if (rows.length === 0) {
-            io.emit('nfcData', { uid: uid, message: "등록되지 않은 카드입니다." });
-        } else {
-            io.emit('nfcData', { uid: uid, message: "등록된 카드입니다." });
-        }
-    } catch (err) {
-        console.error(err);
-    } finally {
-        if (conn) conn.end();
+// 데이터베이스 연결
+db.connect(err => {
+    if (err) {
+        console.error('Error connecting to the database: ' + err.stack);
+        return;
     }
+    console.log('Connected to database.');
 });
 
-function parseUID(data) {
-    const match = data.match(/UID Value:((?: 0x[0-9A-F]{2})+)/i);
-    return match ? match[1].replace(/ 0x/g, '').toUpperCase() : null;
-}
+// 시리얼 포트로부터 데이터 읽기
+parser.on('data', (data) => {
+    console.log(`Received data: ${data}`);
+    let cardData = data.trim();
 
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html')); // path.join 사용
+    // 데이터베이스에서 카드 정보 조회
+    db.query('SELECT * FROM pn532 WHERE uid = ?', [cardData], (err, results) => {
+        if (err) {
+            console.error(err.message);
+            return;
+        }
+        if (results.length > 0) {
+            console.log('Card matched: ', results[0]);
+            console.log('신희성'); // 일치하는 경우 1 출력
+        } else {
+            console.log('Card not found');
+        }
+    });h
 });
 
-server.listen(port, () => {
-    console.log(`localhost:${port}`);
+// 포트 열기 에러 처리
+port.on('error', function(err) {
+    console.log('Error: ', err.message);
 });
