@@ -44,7 +44,7 @@ parser.on('data', (data) => {
         } else {
             console.log('Card not found');
         }
-    });h
+    });
 });
 
 
