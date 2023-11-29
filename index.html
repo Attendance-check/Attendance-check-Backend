@@ -1,21 +1,84 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>NFC Reader</title>
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            var socket = io();
+    <title>찍책</title>
+    <link href="check.ico" rel="shortcut icon" type="image/x-icon">
 
-            socket.on('nfcData', function(data) {
-                var message = data.message + ' (UID: ' + data.uid + ')';
-                document.getElementById('status').textContent = message;
-            });
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            max-width: 600px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px; 
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        #messageContainer {
+            max-height: 70vh; 
+            overflow-y: auto; 
+        }
+        .message {
+            font-size: 1.1rem;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #e7f3fe;
+            border-left: 5px solid #2196F3;
+            border-radius: 5px;
+        }
+        .to-top-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            display: none;
+            font-size: 14px;
+        }
+        .to-top-btn:hover {
+            background-color: #0d47a1;
+        }
+    </style>
+    <script>
+        const socket = io();
+
+        socket.on('cardMatch', function(message) {
+            const currentTime = new Date().toLocaleTimeString(); 
+            const messageElement = document.createElement('div');
+            messageElement.className = 'message';
+            messageElement.innerText = `${message} - ${currentTime}`; 
+            document.getElementById('messageContainer').appendChild(messageElement);
+
+            
+            document.getElementById('toTopBtn').style.display = 'block';
         });
+
+        function scrollToTop() {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
     </script>
 </head>
 <body>
-    <h1>NFC 카드 상태</h1>
-    <p id="status">카드를 스캔해 주세요.</p>
+    <div class="container">
+        <h1>입소 완료자</h1>
+        <div id="messageContainer"></div>
+    </div>
+    
 </body>
 </html>

@@ -4,7 +4,7 @@
   "description": "| type | description |\r | --- | --- |\r | ADD ::  | 기능 추가 |\r | FIX :: | 수정 |\r | DOCS :: | 세부 기능 추가 |\r | STYLE :: | 코드 스타일 변경 |\r | REFACTOR :: | 코드 리팩토링 |\r | TEST :: | 코드 테스트 |\r | DELETE :: | 파일 또는 기능 삭제 |",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "nodemon index.js"
   },
   "author": "",
   "license": "ISC",
