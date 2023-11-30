@@ -35,16 +35,15 @@ db.connect(err => {
 });
 
 parser.on('data', (data) => {
-    console.log(`Received data: ${data}`);
+    console.log(`카드 번호: ${data}`);
     let cardData = data.trim();
 
-    // UID 값에 따라 다른 이름을 웹페이지에 출력합니다.
     if (cardData === '0x3 0x6A 0xC8 0xC5') {
         io.emit('cardMatch', '백동흔');
     } else if (cardData === '0x23 0x24 0x24 0xC6') {
         io.emit('cardMatch', '신희성');
     } else {
-        console.log('Unknown card');
+        console.log('등록된 카드가 아닙니다.');
     }
 });
 
